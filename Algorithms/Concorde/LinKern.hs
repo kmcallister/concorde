@@ -15,6 +15,9 @@ import Text.Printf
 import qualified Data.IntMap    as IM
 import qualified System.Process as P
 
+errStr :: String -> String
+errStr = ("Algorithms.Concorde.LinKern: " ++)
+
 data Config = Config
     { executable :: FilePath
     , verbose    :: Bool
@@ -62,12 +65,13 @@ tsp cfg getCoord xs =
         (Nothing, Nothing, Nothing, procHdl) <- P.createProcess procCfg
         ec <- P.waitForProcess procHdl
         case ec of
-            ExitFailure _ -> throwIO ec
-            _ -> return ()
+            ExitSuccess   -> return ()
+            ExitFailure n -> throwIO . ErrorCall . errStr $
+                ("linkern exited with code " ++ show n)
 
         let get (x:_) = fromMaybe err $ IM.lookup (read x) pts
             get []    = err
-            err = error "Algorithms.Concorde.LinKern: internal error in lookup"
+            err = error (errStr "internal error in lookup")
 
         lns <- lines `fmap` hGetContents tourHdl
         _   <- evaluate (length lns)
