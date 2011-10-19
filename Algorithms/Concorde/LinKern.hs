@@ -11,6 +11,7 @@ import System.Exit
 import System.IO
 import System.IO.Temp
 import Text.Printf
+import Safe
 
 import qualified Data.IntMap    as IM
 import qualified System.Process as P
@@ -69,10 +70,8 @@ tsp cfg getCoord xs =
             ExitFailure n -> throwIO . ErrorCall . errStr $
                 ("linkern exited with code " ++ show n)
 
-        let get (x:_) = fromMaybe err $ IM.lookup (read x) pts
-            get []    = err
-            err = error (errStr "internal error in lookup")
-
         lns <- lines `fmap` hGetContents tourHdl
         _   <- evaluate (length lns)
-        return $ map (get . words) (drop 1 lns)
+        let get = headMay >=> readMay >=> flip IM.lookup pts
+            fj  = fromMaybe (error (errStr "internal error in lookup"))
+        return $ map (fj . get . words) (drop 1 lns)
