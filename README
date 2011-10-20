@@ -1,0 +1,15 @@
+This package provides a simple interface to Concorde, a solver for the
+Traveling Salesperson Problem.  Concorde is available from:
+
+    http://www.tsp.gatech.edu/concorde/index.html
+
+
+Documentation for this package is hosted at:
+
+    http://hackage.haskell.org/package/concorde
+
+To build the documentation yourself, run
+
+    $ cabal configure && cabal haddock --hyperlink-source
+
+This will produce HTML documentation under dist/doc/html/concorde

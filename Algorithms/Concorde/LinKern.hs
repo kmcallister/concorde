@@ -1,7 +1,10 @@
+-- | Approximate a solution to 2D Euclidean TSP using the Lin-Kernighan
+-- heuristic.
 module Algorithms.Concorde.LinKern
-    ( tsp
+    ( -- * The heuristic
+      tsp, R2
+      -- * Configuration
     , Config(..), defConfig
-    , R2
     ) where
 
 import Control.Monad
@@ -19,14 +22,21 @@ import qualified System.Process as P
 errStr :: String -> String
 errStr = ("Algorithms.Concorde.LinKern: " ++)
 
+-- | Configuration for @'tsp'@.
 data Config = Config
-    { executable :: FilePath
+    {  -- | Path to the @linkern@ executable.  Searches @$PATH@ by default.
+      executable :: FilePath
+      -- | If set, write progress information to standard output.
     , verbose    :: Bool
+      -- | Stop looking for better solutions after this many seconds.
     , timeBound  :: Maybe Double
+      -- | Run this many separate optimizations.  Default is 1.
     , runs       :: Int
+      -- | Other command-line arguments to the @linkern@ executable.
     , otherArgs  :: [String]
     } deriving (Eq, Ord, Read, Show)
 
+-- | Default configuration.
 defConfig :: Config
 defConfig = Config
     { executable = "linkern"
@@ -35,10 +45,21 @@ defConfig = Config
     , runs       = 1
     , otherArgs  = [] }
 
+-- | A point in Euclidean two-dimensional space.
 type R2 = (Double, Double)
 
-tsp :: Config -> (a -> R2) -> [a] -> IO [a]
+-- | Approximate a solution to the two-dimensional Euclidean Traveling
+-- Salesperson Problem, using the Lin-Kernighan heuristic.
+--
+-- Invokes Concorde's @linkern@ executable as an external process.
+tsp
+    :: Config     -- ^ Configuration.
+    -> (a -> R2)  -- ^ Gives the Euclidean coordinates of each point.
+    -> [a]        -- ^ List of points to visit.
+    -> IO [a]     -- ^ Produces points permuted in tour order.
 tsp cfg getCoord xs =
+    -- Log to a temp file if not verbose.
+    -- On Unix we could open /dev/null, but this is not portable.
     withSystemTempFile "log"    $ \_          logHdl    ->
     withSystemTempFile "coords" $ \coordsPath coordsHdl ->
     withSystemTempFile "tour"   $ \tourPath   tourHdl   -> do
