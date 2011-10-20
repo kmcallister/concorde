@@ -89,7 +89,9 @@ tsp cfg getCoord xs =
         case ec of
             ExitSuccess   -> return ()
             ExitFailure n -> throwIO . ErrorCall . errStr $
-                ("linkern exited with code " ++ show n)
+                ("linkern exited with code " ++ show n ++ extra) where
+                    extra | n == 127  = "; program not installed or not in path?"
+                          | otherwise = ""
 
         lns <- lines `fmap` hGetContents tourHdl
         _   <- evaluate (length lns)
