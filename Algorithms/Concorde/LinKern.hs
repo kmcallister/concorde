@@ -30,6 +30,8 @@ data Config = Config
     , verbose    :: Bool
       -- | Stop looking for better solutions after this many seconds.
     , timeBound  :: Maybe Double
+      -- | Run this many optimization steps.  Default is the number of points.
+    , steps      :: Maybe Int
       -- | Run this many separate optimizations.  Default is 1.
     , runs       :: Int
       -- | Other command-line arguments to the @linkern@ executable.
@@ -42,6 +44,7 @@ defConfig = Config
     { executable = "linkern"
     , verbose    = False
     , timeBound  = Nothing
+    , steps      = Nothing
     , runs       = 1
     , otherArgs  = [] }
 
@@ -83,6 +86,7 @@ tsp cfg getCoord xs =
             allArgs = concat [ ["-o", tourPath]
                              , ["-r", show (runs cfg)]
                              , optArg "-t" "%f" timeBound
+                             , optArg "-R" "%d" steps
                              , otherArgs cfg
                              , [coordsPath] ]
 
