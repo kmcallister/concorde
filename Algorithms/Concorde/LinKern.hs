@@ -65,11 +65,15 @@ tsp cfg getCoord xs =
     withSystemTempFile "tour"   $ \tourPath   tourHdl   -> do
 
         let pts = IM.fromList $ zip [0..] xs
-        _ <- hPrintf coordsHdl "TYPE : TSP\nDIMENSION : %d\n" (IM.size pts)
-        _ <- hPrintf coordsHdl "EDGE_WEIGHT_TYPE : EUC_2D\nNODE_COORD_SECTION\n"
+        mapM_ (hPutStrLn coordsHdl)
+            [ "TYPE:TSP"
+            , "DIMENSION:" ++ show (IM.size pts)
+            , "EDGE_WEIGHT_TYPE:EUC_2D"
+            , "NODE_COORD_SECTION" ]
         forM_ (IM.toList pts) $ \(i,p) -> do
             let (x,y) = getCoord p
             hPrintf coordsHdl "%d %f %f\n" i x y
+        hPutStrLn coordsHdl "EOF"
         hClose coordsHdl
 
         let timeArgs = case timeBound cfg of
