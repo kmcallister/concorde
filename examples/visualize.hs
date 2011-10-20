@@ -82,15 +82,22 @@ main = do
             , T.steps      = steps
             , T.runs       = runs
             , T.otherArgs  = [] }
+        vOut = if verbose then putStrLn else const (return ())
 
+    vOut "[*] Generating points"
     let rnd = randomRIO (0,10000)
     points <- replicateM numPoints (liftM2 (,) rnd rnd)
-    tour   <- T.tsp cfg id points
 
-    -- Sanity check
+    vOut "[*] Computing tour"
+    tour <- T.tsp cfg id points
+
+    vOut "[*] Checking output"
     when (sort tour /= sort points) $ do
         hPrint    stderr (sort tour, sort points)
         hPutStrLn stderr "ERROR: tour is not a permutation"
         exitFailure
 
+    vOut "[*] Writing PDF"
     writePDF out (diaPoints numPoints tour D.<> diaTour tour)
+
+    vOut "Done!"
