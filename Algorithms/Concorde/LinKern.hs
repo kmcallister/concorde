@@ -76,14 +76,15 @@ tsp cfg getCoord xs =
         hPutStrLn coordsHdl "EOF"
         hClose coordsHdl
 
-        let timeArgs = case timeBound cfg of
+        let optArg flag fmt proj = case proj cfg of
                 Nothing -> []
-                Just n  -> ["-t", printf "%f" n]
+                Just x  -> [flag, printf fmt x]
 
-            allArgs = concat [ timeArgs
+            allArgs = concat [ ["-o", tourPath]
                              , ["-r", show (runs cfg)]
-                             , ["-o", tourPath]
-                             , otherArgs cfg, [coordsPath] ]
+                             , optArg "-t" "%f" timeBound
+                             , otherArgs cfg
+                             , [coordsPath] ]
 
             subOut  = if verbose cfg then P.Inherit else P.UseHandle logHdl
             procCfg = (P.proc (executable cfg) allArgs) { P.std_out = subOut }
