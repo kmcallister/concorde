@@ -17,6 +17,8 @@ description:
     program.  It quickly produces good tours, which may not be optimal.  You
     can directly control the tradeoff between run time and solution quality.
     .
+    An example program is included.
+    .
     Currently, only problems in two-dimensional Euclidean space are supported.
     .
     More features of Concorde can be added on request.  Feature requests and
@@ -24,6 +26,7 @@ description:
 
 extra-source-files:
     README
+  , examples/visualize.hs
 
 library
   exposed-modules:
