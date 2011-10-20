@@ -60,7 +60,7 @@ type R2 = (Double, Double)
 -- You may need to scale up coordinates in the function passed to @'tsp'@.
 tsp
     :: Config     -- ^ Configuration.
-    -> (a -> R2)  -- ^ Gives the Euclidean coordinates of each point; see below.
+    -> (a -> R2)  -- ^ Gives the rectangular coordinates of each point; see below.
     -> [a]        -- ^ List of points to visit.
     -> IO [a]     -- ^ Produces points permuted in tour order.
 tsp cfg getCoord xs =
