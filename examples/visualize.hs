@@ -12,9 +12,12 @@ module Main(main) where
 
 import qualified Algorithms.Concorde.LinKern as T
 
--- package 'diagrams'
-import qualified Diagrams.Prelude       as D
-import qualified Diagrams.Backend.Cairo as D
+-- package 'diagrams' and dependencies
+import qualified Diagrams.Prelude         as D
+import qualified Diagrams.Backend.Cairo   as D
+import qualified Data.Colour.SRGB         as D
+import qualified Data.Colour.RGBSpace     as D
+import qualified Data.Colour.RGBSpace.HSV as D
 
 -- package 'cmdargs'
 import qualified System.Console.CmdArgs as Arg
@@ -53,9 +56,11 @@ argSpec = Visualize
 
 type Diagram = D.Diagram D.Cairo D.R2
 
-diaPoints :: [T.R2] -> Diagram
-diaPoints = mconcat . map circ where
-    circ p = D.translate p . D.fc D.red $ D.circle 20
+diaPoints :: Int -> [T.R2] -> Diagram
+diaPoints n = mconcat . map circ . zip [0..] where
+    nn = fromIntegral n
+    circ (i,p) = D.translate p . D.fc color $ D.circle 40 where
+        color = D.uncurryRGB D.sRGB (D.hsv (360*i/nn) 1 1)
 
 diaTour :: [T.R2] -> Diagram
 diaTour [] = mempty
@@ -87,4 +92,4 @@ main = do
         hPutStrLn stderr "ERROR: tour is not a permutation"
         exitFailure
 
-    writePDF out (diaPoints points D.<> diaTour tour)
+    writePDF out (diaPoints numPoints tour D.<> diaTour tour)
