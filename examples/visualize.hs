@@ -64,7 +64,8 @@ diaPoints n = mconcat . map circ . zip [0..] where
 
 diaTour :: [T.R2] -> Diagram
 diaTour [] = mempty
-diaTour xs@(x:_) = D.lw 10 . D.fromVertices $ map D.P (xs ++ [x])
+diaTour xs@(x:_) = sty . D.fromVertices $ map D.P (xs ++ [x]) where
+    sty = D.fc D.lightgrey . D.lw 10
 
 writePDF :: FilePath -> Diagram -> IO ()
 writePDF pdfName dia = fst $ D.renderDia D.Cairo opts dia where
