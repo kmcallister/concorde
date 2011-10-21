@@ -70,6 +70,7 @@ tsp cfg getCoord xs =
     withSystemTempFile "coords" $ \coordsPath coordsHdl ->
     withSystemTempFile "tour"   $ \tourPath   tourHdl   -> do
 
+        -- Output coordinates in TSPLIB format
         let pts = IM.fromList $ zip [0..] xs
         mapM_ (hPutStrLn coordsHdl)
             [ "TYPE:TSP"
@@ -82,6 +83,7 @@ tsp cfg getCoord xs =
         hPutStrLn coordsHdl "EOF"
         hClose coordsHdl
 
+        -- Invoke linkern
         let optArg flag fmt proj = case proj cfg of
                 Nothing -> []
                 Just x  -> [flag, printf fmt x]
@@ -101,10 +103,12 @@ tsp cfg getCoord xs =
         case ec of
             ExitSuccess   -> return ()
             ExitFailure n -> throwIO . ErrorCall . errStr $
-                ("linkern exited with code " ++ show n ++ extra) where
+                ("process exited with code " ++ show n ++ extra) where
                     extra | n == 127  = "; program not installed or not in path?"
                           | otherwise = ""
 
+        -- Skip the first line, then read the first int of each remaining
+        -- line as an index into the original list of points.
         lns <- lines `fmap` hGetContents tourHdl
         _   <- evaluate (length lns)
         let get = headMay >=> readMay >=> flip IM.lookup pts
